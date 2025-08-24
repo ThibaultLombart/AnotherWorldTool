@@ -1,6 +1,7 @@
 package com.thibault_lombart.anotherWorldTool
 
 import com.thibault_lombart.anotherWorldTool.commands.AnotherWorldToolCommand
+import com.thibault_lombart.anotherWorldTool.listeners.ListenerBreakBlock
 import com.thibault_lombart.anotherWorldTool.listeners.ListenerCustomItemInventory
 import com.thibault_lombart.anotherWorldTool.tools.CustomItemTag
 import org.bukkit.Bukkit
@@ -20,6 +21,7 @@ class AnotherWorldTool : JavaPlugin() {
         Bukkit.getPluginManager().registerEvents(ListenerOnJoinOnLeave(this), this);
         Bukkit.getPluginManager().registerEvents(ListenerCustomItemInventory(this) ,this);
         Bukkit.getPluginManager().registerEvents(ToolSelectMenuListener(), this);
+        Bukkit.getPluginManager().registerEvents(ListenerBreakBlock(this), this);
 
         val cmd = AnotherWorldToolCommand(this)
         getCommand("anotherworldtool")!!.setExecutor(cmd)

@@ -13,4 +13,9 @@ public enum ToolsEnum {
         for (ToolsEnum t : values()) if (t.name().equalsIgnoreCase(id)) return t;
         return null;
     }
+
+    public String getDisplayName() {
+        String lower = name().toLowerCase();
+        return Character.toUpperCase(lower.charAt(0)) + lower.substring(1);
+    }
 }
