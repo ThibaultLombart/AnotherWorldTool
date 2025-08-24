@@ -1,0 +1,13 @@
+name: AnotherWorldTool
+version: '1.0-SNAPSHOT'
+main: com.thibault_lombart.anotherWorldTool.AnotherWorldTool
+api-version: '1.21'
+commands:
+  anotherworldtool:
+    description: Base command for AnotherWorldTool
+    usage: /anotherworldtool <get|menu>
+    aliases: [awt]
+    permission: anotherworldtool.use
+permissions:
+  anotherworldtool.use:
+    default: true
