@@ -142,7 +142,7 @@ public abstract class Tool {
 
     public ItemMeta changeItemMeta(ItemMeta meta) {
         CustomItemTag.tag(meta, this.toolsEnum.name());
-        CustomItemTag.tag(meta, this.getUser().toString());
+        CustomItemTag.tagUser(meta, this.getUser().toString());
         meta.setUnbreakable(true);
 
         meta.displayName(

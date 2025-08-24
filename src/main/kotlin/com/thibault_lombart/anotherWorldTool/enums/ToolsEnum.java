@@ -6,5 +6,11 @@ public enum ToolsEnum {
     SHOVEL,
     PICKAXE,
     SHEARS,
-    HOE
+    HOE;
+
+    public static ToolsEnum fromId(String id) {
+        if (id == null) return null;
+        for (ToolsEnum t : values()) if (t.name().equalsIgnoreCase(id)) return t;
+        return null;
+    }
 }

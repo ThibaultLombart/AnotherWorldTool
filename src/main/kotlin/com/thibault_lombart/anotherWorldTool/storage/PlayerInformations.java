@@ -1,5 +1,6 @@
 package com.thibault_lombart.anotherWorldTool.storage;
 
+import com.thibault_lombart.anotherWorldTool.enums.ToolsEnum;
 import com.thibault_lombart.anotherWorldTool.tools.*;
 import com.thibault_lombart.anotherWorldTool.utils.PlayerUtils;
 
@@ -78,5 +79,17 @@ public class PlayerInformations {
     public void changeCurrentTool(Tool tool) {
         this.currentTool = tool;
     }
+
+    public Tool getToolByEnum(ToolsEnum t) {
+        if (t == null) return null;
+        return switch (t) {
+            case AXE -> axeTool;
+            case HOE -> hoeTool;
+            case PICKAXE -> pickaxeTool;
+            case SHEARS -> shearsTool;
+            case SHOVEL -> shovelTool;
+        };
+    }
+
 
 }

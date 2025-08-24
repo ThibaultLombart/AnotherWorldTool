@@ -5,6 +5,8 @@ import com.thibault_lombart.anotherWorldTool.storage.PlayerInformations;
 import com.thibault_lombart.anotherWorldTool.storage.PlayersInformationsList;
 import com.thibault_lombart.anotherWorldTool.tools.Tool;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -43,8 +45,16 @@ public class ToolSelectMenu implements InventoryHolder {
 
             ItemMeta meta = icon.getItemMeta();
             List<Component> lore = meta.lore();
-            lore.add(Component.text(" "));
-            lore.add(Component.text("Cet item est actuellement équipé."));
+            lore.add(Component.empty());
+            lore.add(
+                    Component.text("» ")
+                            .color(NamedTextColor.DARK_GRAY)
+                            .decoration(TextDecoration.ITALIC, false)
+                            .append(Component.text("Équipé")
+                                    .color(NamedTextColor.GREEN)
+                                    .decorate(TextDecoration.BOLD)
+                                    .decoration(TextDecoration.ITALIC, false))
+            );
             meta.lore(lore);
             meta.addEnchant(Enchantment.UNBREAKING, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
