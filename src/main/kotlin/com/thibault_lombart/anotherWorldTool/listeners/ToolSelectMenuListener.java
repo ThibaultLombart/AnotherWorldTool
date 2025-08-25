@@ -1,5 +1,6 @@
 package com.thibault_lombart.anotherWorldTool.listeners;
 
+import com.thibault_lombart.anotherWorldTool.inventories.ToolEnchantMenu;
 import com.thibault_lombart.anotherWorldTool.inventories.ToolSelectMenu;
 import com.thibault_lombart.anotherWorldTool.storage.PlayersInformationsList;
 import com.thibault_lombart.anotherWorldTool.tools.CustomItemTag;
@@ -56,11 +57,21 @@ public class ToolSelectMenuListener implements Listener {
             return;
         }
 
-        // Remplacer
-        PlayersInformationsList.getPlayersInformations(p.getUniqueId()).changeCurrentTool(selected);
-        p.getInventory().setItemInMainHand(selected.getTool());
-        p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.2f);
-        p.closeInventory();
+        switch (e.getClick()) {
+            case RIGHT -> {
+                // Clique droit : ouvrir un nouveau menu
+                ToolEnchantMenu menuEnchant = new ToolEnchantMenu(p.getUniqueId(), selected);
+                p.openInventory(menuEnchant.getInventory());
+                p.playSound(p.getLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 1f);
+            }
+            default -> {
+                PlayersInformationsList.getPlayersInformations(p.getUniqueId())
+                        .changeCurrentTool(selected);
+                p.getInventory().setItemInMainHand(selected.getTool());
+                p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.2f);
+                p.closeInventory();
+            }
+        }
     }
 
 }

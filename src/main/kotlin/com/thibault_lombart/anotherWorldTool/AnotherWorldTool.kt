@@ -8,7 +8,9 @@ import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import org.bukkit.plugin.java.JavaPlugin
 import com.thibault_lombart.anotherWorldTool.listeners.ListenerOnJoinOnLeave
+import com.thibault_lombart.anotherWorldTool.listeners.ToolEnchantMenuListener
 import com.thibault_lombart.anotherWorldTool.listeners.ToolSelectMenuListener
+import com.thibault_lombart.anotherWorldTool.utils.BlockCategories
 
 
 class AnotherWorldTool : JavaPlugin() {
@@ -18,10 +20,15 @@ class AnotherWorldTool : JavaPlugin() {
         CustomItemTag.ITEM_ID_KEY = NamespacedKey(this, "item_id")
         CustomItemTag.ITEM_USER_KEY = NamespacedKey(this, "item_user")
 
+        val blockCategories = BlockCategories(this)
+        blockCategories.load()
+
         Bukkit.getPluginManager().registerEvents(ListenerOnJoinOnLeave(this), this);
         Bukkit.getPluginManager().registerEvents(ListenerCustomItemInventory(this) ,this);
         Bukkit.getPluginManager().registerEvents(ToolSelectMenuListener(), this);
-        Bukkit.getPluginManager().registerEvents(ListenerBreakBlock(this), this);
+        Bukkit.getPluginManager().registerEvents(ToolEnchantMenuListener(), this);
+        Bukkit.getPluginManager().registerEvents(ListenerBreakBlock(this, blockCategories), this);
+
 
         val cmd = AnotherWorldToolCommand(this)
         getCommand("anotherworldtool")!!.setExecutor(cmd)

@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -177,6 +178,21 @@ public abstract class Tool {
         }
 
         return meta;
+    }
+
+    public void upgradeEnchantment(EnchantType enchantment) {
+
+        if(enchantment.allowedOn(getToolsEnum()) && enchantment.pointsCost <= this.getPoints() && enchantment.minimumToolLevel <= this.getLevel() && enchantment.maxLevel > this.getEnchantLevel(enchantment)) {
+
+            if (this.getEnchantLevel(enchantment) > 0) {
+                this.setEnchantLevel(enchantment, this.getEnchantLevel(enchantment) + 1);
+            } else {
+                this.setEnchantLevel(enchantment, 1);
+            }
+
+            this.points -= 1;
+
+        }
     }
 
     @Override

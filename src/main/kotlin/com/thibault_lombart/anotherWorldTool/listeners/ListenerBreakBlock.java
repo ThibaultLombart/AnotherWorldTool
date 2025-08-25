@@ -7,8 +7,12 @@ import com.thibault_lombart.anotherWorldTool.storage.PlayersInformationsList;
 import com.thibault_lombart.anotherWorldTool.tools.CustomItemTag;
 import com.thibault_lombart.anotherWorldTool.tools.Tool;
 import com.thibault_lombart.anotherWorldTool.utils.BlockCategories;
+import com.thibault_lombart.anotherWorldTool.utils.CropMaturity;
 import com.thibault_lombart.anotherWorldTool.utils.LoreUtils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -17,13 +21,17 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import com.thibault_lombart.anotherWorldTool.debouncers.LoreUpdateDebouncer;
 
+import java.time.Duration;
+
 public class ListenerBreakBlock implements Listener {
 
     private final AnotherWorldTool plugin;
+    private final BlockCategories categories;
     private final LoreUpdateDebouncer debouncer;
 
-    public ListenerBreakBlock(AnotherWorldTool plugin) {
+    public ListenerBreakBlock(AnotherWorldTool plugin, BlockCategories categories) {
         this.plugin = plugin;
+        this.categories = categories;
         this.debouncer = new LoreUpdateDebouncer(plugin);
     }
 
@@ -38,7 +46,11 @@ public class ListenerBreakBlock implements Listener {
 
         // Le bloc correspond-il à la catégorie de l’outil ?
         Material m = e.getBlock().getType();
-        if (!matches(toolEnum, m)) return;
+        if (!categories.matches(toolEnum, m)) return;
+
+        if (CropMaturity.requiresMaturity(m) && !CropMaturity.isFullyGrown(e.getBlock())) {
+            return;
+        }
 
         // Récupère les infos joueur + l'instance Tool à XP
         PlayerInformations playerInformations = PlayersInformationsList.getPlayersInformations(e.getPlayer().getUniqueId());
@@ -47,16 +59,12 @@ public class ListenerBreakBlock implements Listener {
         Tool tool = playerInformations.getToolByEnum(toolEnum);
         if (tool == null) return;
 
-        // Donne l'XP (choisis ta valeur, ici 1)
-        boolean leveled = tool.addXP(1);
+        int xpToGive = categories.xpFor(toolEnum, m);
 
-        // feedback temps réel SANS toucher à l’item
-        e.getPlayer().sendActionBar(
-                net.kyori.adventure.text.Component.text("XP: " + tool.getXP() + " / " + tool.getXpToNextLevel())
-                        .color(net.kyori.adventure.text.format.NamedTextColor.GRAY)
-        );
+        // Donne l'XP
+        boolean leveled = playerInformations.addXp(tool,xpToGive);
 
-        // Optionnel : petit feedback level-up
+        // Gestion des rankups et messages
         if (leveled) {
             Material current = hand.getType();
             Material expected = tool.getMaterial();
@@ -70,7 +78,12 @@ public class ListenerBreakBlock implements Listener {
                 LoreUtils.updateXpLine(hand, tool);
             }
 
-            e.getPlayer().sendActionBar(net.kyori.adventure.text.Component.text("§aNiveau d'outil +1 (" + tool.getLevel() + ")"));
+            Title title = Title.title(
+                    Component.text("⬆ Niveau d’outil +1").color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD),
+                    Component.text(tool.getName() + " → niveau " + tool.getLevel()).color(NamedTextColor.GOLD),
+                    Title.Times.times(Duration.ofMillis(200), Duration.ofSeconds(2), Duration.ofMillis(300))
+            );
+            e.getPlayer().showTitle(title);
             // petit son :
             e.getPlayer().playSound(e.getPlayer().getLocation(), org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1.2f);
 
@@ -86,6 +99,12 @@ public class ListenerBreakBlock implements Listener {
             // annule toute maj différée car on vient d’en faire une
             debouncer.cancel(e.getPlayer().getUniqueId());
             return;
+        } else {
+            // feedback temps réel SANS toucher à l’item
+            e.getPlayer().sendActionBar(
+                    net.kyori.adventure.text.Component.text("XP: " + tool.getXP() + " / " + tool.getXpToNextLevel())
+                            .color(net.kyori.adventure.text.format.NamedTextColor.GRAY)
+            );
         }
 
         // Pas de level-up → DIFFÉRER la maj du lore (évite l’animation spam)
@@ -105,16 +124,6 @@ public class ListenerBreakBlock implements Listener {
 
         ToolsEnum toolEnum = ToolsEnum.fromId(id);
         return toolEnum;
-    }
-
-    private boolean matches(ToolsEnum t, Material m) {
-        return switch (t) {
-            case AXE     -> BlockCategories.forAxe(m);
-            case PICKAXE -> BlockCategories.forPickaxe(m);
-            case HOE     -> BlockCategories.forHoe(m);
-            case SHEARS  -> BlockCategories.forShears(m);
-            case SHOVEL  -> BlockCategories.forShovel(m);
-        };
     }
 
 }

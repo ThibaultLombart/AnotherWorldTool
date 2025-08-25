@@ -91,5 +91,9 @@ public class PlayerInformations {
         };
     }
 
+    public boolean addXp(Tool tool, int xp) {
+        return tool.addXP(xp);
+    }
+
 
 }

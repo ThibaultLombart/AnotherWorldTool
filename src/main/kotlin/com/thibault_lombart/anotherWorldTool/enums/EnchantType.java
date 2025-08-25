@@ -17,7 +17,9 @@ import java.util.Set;
 public enum EnchantType {
 
     EFFICIENCY("Efficacité", Enchantment.EFFICIENCY, true,
-            1, 1, 256, Material.NETHER_STAR, EnumSet.of(ToolsEnum.AXE, ToolsEnum.PICKAXE, ToolsEnum.SHOVEL, ToolsEnum.SHEARS));
+            1, 1, 255, Material.NETHER_STAR, EnumSet.of(ToolsEnum.AXE, ToolsEnum.PICKAXE, ToolsEnum.SHOVEL, ToolsEnum.SHEARS)),
+    SILKTOUCH("Touché de soie", Enchantment.SILK_TOUCH, true,
+            5, 2, 1, Material.QUARTZ, EnumSet.of(ToolsEnum.AXE, ToolsEnum.PICKAXE, ToolsEnum.SHOVEL));
 
     public final String displayName;
     public final Enchantment vanilla;   // null si custom
@@ -49,11 +51,6 @@ public enum EnchantType {
         return allowedTools.contains(tool.getToolsEnum());
     }
 
-    private static String roman(int n) {
-        String[] r = {"","I","II","III","IV","V","VI","VII","VIII","IX","X"};
-        return (n >= 0 && n < r.length) ? r[n] : String.valueOf(n);
-    }
-
     public void apply(ItemMeta meta, int level, boolean unsafeVanilla) {
         if (isVanilla && vanilla != null) {
             meta.addEnchant(vanilla, level, unsafeVanilla);
@@ -61,7 +58,7 @@ public enum EnchantType {
             // custom "façon vanilla" dans le lore, sans PDC
             var lore = meta.lore() == null ? new java.util.ArrayList<net.kyori.adventure.text.Component>()
                     : new java.util.ArrayList<>(meta.lore());
-            lore.add(Component.text(displayName + " " + roman(level))
+            lore.add(Component.text(displayName + " " + level)
                     .color(NamedTextColor.GRAY)
                     .decoration(TextDecoration.ITALIC, false));
             meta.lore(lore);
@@ -79,12 +76,20 @@ public enum EnchantType {
 
         // Lore : coût, niveau max, type
         List<Component> lore = new ArrayList<>();
-        lore.add(Component.text("Coût en points : " + pointsCost)
-                .color(NamedTextColor.GRAY)
-                .decoration(TextDecoration.ITALIC, false));
-        lore.add(Component.text("Niveau max : " + maxLevel)
-                .color(NamedTextColor.GRAY)
-                .decoration(TextDecoration.ITALIC, false));
+        lore.add(Component.empty());
+        lore.add(Component.text("──────────────", NamedTextColor.DARK_GRAY)); // ligne de séparation
+        lore.add(
+                Component.text("Niveau maximum : ", NamedTextColor.GRAY)
+                        .append(Component.text(String.valueOf(maxLevel), NamedTextColor.GOLD))
+                        .decoration(TextDecoration.ITALIC, false)
+        );
+        lore.add(
+                Component.text("Coût en points : ", NamedTextColor.GRAY)
+                        .append(Component.text(String.valueOf(pointsCost), NamedTextColor.GREEN))
+                        .decoration(TextDecoration.ITALIC, false)
+        );
+        lore.add(Component.text("──────────────", NamedTextColor.DARK_GRAY)); // ligne de séparation
+        lore.add(Component.empty());
 
         meta.lore(lore);
         item.setItemMeta(meta);
