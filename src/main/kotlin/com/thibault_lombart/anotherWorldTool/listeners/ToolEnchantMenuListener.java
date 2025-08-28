@@ -3,9 +3,10 @@ package com.thibault_lombart.anotherWorldTool.listeners;
 import com.thibault_lombart.anotherWorldTool.enums.EnchantType;
 import com.thibault_lombart.anotherWorldTool.inventories.ToolEnchantMenu;
 import com.thibault_lombart.anotherWorldTool.inventories.ToolSelectMenu;
-import com.thibault_lombart.anotherWorldTool.storage.PlayersInformationsList;
+import com.thibault_lombart.anotherWorldTool.inventories.ToolWikiMenu;
 import com.thibault_lombart.anotherWorldTool.tools.CustomItemTag;
 import com.thibault_lombart.anotherWorldTool.tools.Tool;
+import com.thibault_lombart.anotherWorldTool.utils.BlockCategories;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,6 +16,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class ToolEnchantMenuListener implements Listener {
+
+    private final BlockCategories blockCategories;
+
+    public ToolEnchantMenuListener(BlockCategories blockCategories) {
+        this.blockCategories = blockCategories;
+    }
 
     // gère le clic dans le menu
     @EventHandler
@@ -26,6 +33,12 @@ public class ToolEnchantMenuListener implements Listener {
         if (!(e.getWhoClicked() instanceof Player p)) return;
 
         int slot = e.getRawSlot();
+
+        if (slot == menu.getSlotWiki()) {
+            ToolWikiMenu menuWiki = new ToolWikiMenu(p.getUniqueId(), menu.getTool().getToolsEnum(), blockCategories);
+            p.openInventory(menuWiki.getInventory());
+        }
+
         if (slot == menu.getSlotWiki()) return;
 
         EnchantType selected = menu.getEnchantType(slot);

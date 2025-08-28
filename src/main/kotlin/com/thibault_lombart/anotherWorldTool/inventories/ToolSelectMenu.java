@@ -1,6 +1,5 @@
 package com.thibault_lombart.anotherWorldTool.inventories;
 
-import com.thibault_lombart.anotherWorldTool.enums.ToolsEnum;
 import com.thibault_lombart.anotherWorldTool.storage.PlayerInformations;
 import com.thibault_lombart.anotherWorldTool.storage.PlayersInformationsList;
 import com.thibault_lombart.anotherWorldTool.tools.Tool;
@@ -8,7 +7,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;

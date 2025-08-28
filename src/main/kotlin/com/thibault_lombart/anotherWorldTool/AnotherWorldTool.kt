@@ -10,6 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import com.thibault_lombart.anotherWorldTool.listeners.ListenerOnJoinOnLeave
 import com.thibault_lombart.anotherWorldTool.listeners.ToolEnchantMenuListener
 import com.thibault_lombart.anotherWorldTool.listeners.ToolSelectMenuListener
+import com.thibault_lombart.anotherWorldTool.listeners.ToolWikiMenuListener
 import com.thibault_lombart.anotherWorldTool.utils.BlockCategories
 
 
@@ -26,7 +27,8 @@ class AnotherWorldTool : JavaPlugin() {
         Bukkit.getPluginManager().registerEvents(ListenerOnJoinOnLeave(this), this);
         Bukkit.getPluginManager().registerEvents(ListenerCustomItemInventory(this) ,this);
         Bukkit.getPluginManager().registerEvents(ToolSelectMenuListener(), this);
-        Bukkit.getPluginManager().registerEvents(ToolEnchantMenuListener(), this);
+        Bukkit.getPluginManager().registerEvents(ToolEnchantMenuListener(blockCategories), this);
+        Bukkit.getPluginManager().registerEvents(ToolWikiMenuListener(), this);
         Bukkit.getPluginManager().registerEvents(ListenerBreakBlock(this, blockCategories), this);
 
 

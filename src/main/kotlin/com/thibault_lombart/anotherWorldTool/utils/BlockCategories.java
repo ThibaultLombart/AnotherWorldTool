@@ -5,9 +5,7 @@ import com.thibault_lombart.anotherWorldTool.enums.ToolsEnum;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.EnumMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public final class BlockCategories {
 
@@ -81,6 +79,11 @@ public final class BlockCategories {
         Map<Material, Integer> map = categories.get(tool);
         if (map == null) return defaultXp;
         return map.getOrDefault(m, defaultXp);
+    }
+
+    public Map<Material, Integer> getMaterialFromTool(ToolsEnum toolsEnum) {
+        Map<Material, Integer> map = categories.get(toolsEnum);
+        return map == null ? Collections.emptyMap() : map;
     }
 
 
