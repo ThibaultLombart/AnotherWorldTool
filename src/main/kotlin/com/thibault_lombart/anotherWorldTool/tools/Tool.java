@@ -25,7 +25,9 @@ public abstract class Tool {
     private String name = "Tool";
     private ToolsEnum toolsEnum = ToolsEnum.AXE;
     private java.util.EnumMap<EnchantType, Integer> enchantLevels = new java.util.EnumMap<>(EnchantType.class);
+    private List<EnchantType> desactivatedEnchants = new ArrayList<>();
     private UUID user;
+    private int levelLine;
 
     public Tool(UUID user, String name, ToolsEnum toolsEnum) {
         this.name = name;
@@ -132,6 +134,34 @@ public abstract class Tool {
         return xpToNextLevel;
     }
 
+    public int getLevelLine() {
+        return levelLine;
+    }
+
+    public List<EnchantType> getDesactivatedEnchants() {
+        return desactivatedEnchants;
+    }
+
+    public void addDesactivatedEnchants(EnchantType type) {
+        this.desactivatedEnchants.add(type);
+    }
+
+    public void removeDesactivatedEnchants(EnchantType type) {
+        this.desactivatedEnchants.remove(type);
+    }
+
+    public boolean isDesactivated(EnchantType type) {
+        return this.desactivatedEnchants.contains(type);
+    }
+
+    public void addOrRemoveDesactivatedEnchants(EnchantType type) {
+        if (isDesactivated(type)) {
+            this.desactivatedEnchants.remove(type);
+        } else {
+            this.desactivatedEnchants.add(type);
+        }
+    }
+
     public int calculateXpForNextLevel(int level) {
         if (level <= 30) {
             return (int) (200 * Math.pow(level, 1.9));
@@ -154,18 +184,6 @@ public abstract class Tool {
         );
 
         List<Component> lore = new ArrayList<>();
-        // ligne vide
-        lore.add(Component.text(""));
-        // level
-        lore.add(Component.text("Level : " + this.getLevel())
-                .color(NamedTextColor.GRAY)
-                .decoration(TextDecoration.ITALIC, false));
-
-        // xp
-        lore.add(Component.text("XP : " + this.getXP() + " / " + this.getXpToNextLevel())
-                .color(NamedTextColor.GRAY)
-                .decoration(TextDecoration.ITALIC, false));
-        meta.lore(lore); // applique la liste de lore
 
         for (var entry : getEnchantLevels().entrySet()) {
             EnchantType type = entry.getKey();
@@ -173,14 +191,31 @@ public abstract class Tool {
             if (lvl <= 0) continue;
             if (!type.allowedOn(getToolsEnum())) continue;
             if (getLevel() < type.minimumToolLevel) continue;
+            if (isDesactivated(type)) continue;
 
             type.apply(meta, lvl, true);
         }
 
+        // ligne vide
+        lore.add(Component.text(""));
+        lore.add(Component.text("──────────", NamedTextColor.DARK_GRAY));
+        // level
+        lore.add(Component.text("Level : " + this.getLevel())
+                .color(NamedTextColor.GRAY)
+                .decoration(TextDecoration.ITALIC, false));
+        this.levelLine = lore.size()-1;
+
+        // xp
+        lore.add(Component.text("XP : " + this.getXP() + " / " + this.getXpToNextLevel())
+                .color(NamedTextColor.GRAY)
+                .decoration(TextDecoration.ITALIC, false));
+        lore.add(Component.text("──────────", NamedTextColor.DARK_GRAY));
+        meta.lore(lore); // applique la liste de lore
+
         return meta;
     }
 
-    public void upgradeEnchantment(EnchantType enchantment) {
+    public boolean upgradeEnchantment(EnchantType enchantment) {
 
         if(enchantment.allowedOn(getToolsEnum()) && enchantment.pointsCost <= this.getPoints() && enchantment.minimumToolLevel <= this.getLevel() && enchantment.maxLevel > this.getEnchantLevel(enchantment)) {
 
@@ -192,7 +227,11 @@ public abstract class Tool {
 
             this.points -= 1;
 
+            return true;
+
         }
+
+        return false;
     }
 
     @Override

@@ -36,19 +36,35 @@ public class ToolEnchantMenuListener implements Listener {
         switch (e.getClick()) {
             case RIGHT -> {
                 // rien pour le moment
+                Tool tool = menu.getTool();
+                if (tool.getEnchantLevel(selected) > 0) {
+                    tool.addOrRemoveDesactivatedEnchants(selected);
+
+                    ItemStack inHand = p.getInventory().getItemInMainHand();
+                    if (CustomItemTag.hasId(inHand, tool.getToolsEnum().name())) {
+                        p.getInventory().setItemInMainHand(tool.getTool());
+                    }
+
+                    p.playSound(p.getLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 1.2f);
+                    ToolEnchantMenu menuEnchant = new ToolEnchantMenu(p.getUniqueId(), tool);
+                    p.openInventory(menuEnchant.getInventory());
+
+                }
             }
             default -> {
                 Tool tool = menu.getTool();
-                tool.upgradeEnchantment(selected);
 
-                ItemStack inHand = p.getInventory().getItemInMainHand();
-                if (CustomItemTag.hasId(inHand, tool.getToolsEnum().name())) {
-                    p.getInventory().setItemInMainHand(tool.getTool());
+                if(tool.upgradeEnchantment(selected)){
+                    ItemStack inHand = p.getInventory().getItemInMainHand();
+                    if (CustomItemTag.hasId(inHand, tool.getToolsEnum().name())) {
+                        p.getInventory().setItemInMainHand(tool.getTool());
+                    }
+
+                    p.playSound(p.getLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 1.2f);
+                    ToolEnchantMenu menuEnchant = new ToolEnchantMenu(p.getUniqueId(), tool);
+                    p.openInventory(menuEnchant.getInventory());
                 }
 
-                p.playSound(p.getLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 1.2f);
-                ToolEnchantMenu menuEnchant = new ToolEnchantMenu(p.getUniqueId(), tool);
-                p.openInventory(menuEnchant.getInventory());
             }
         }
     }

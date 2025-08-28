@@ -17,7 +17,7 @@ import java.util.Set;
 public enum EnchantType {
 
     EFFICIENCY("Efficacité", Enchantment.EFFICIENCY, true,
-            1, 1, 255, Material.NETHER_STAR, EnumSet.of(ToolsEnum.AXE, ToolsEnum.PICKAXE, ToolsEnum.SHOVEL, ToolsEnum.SHEARS)),
+            1, 1, 255, Material.NETHER_STAR, EnumSet.of(ToolsEnum.AXE, ToolsEnum.PICKAXE, ToolsEnum.SHOVEL, ToolsEnum.SHEARS, ToolsEnum.HOE)),
     SILKTOUCH("Touché de soie", Enchantment.SILK_TOUCH, true,
             5, 2, 1, Material.QUARTZ, EnumSet.of(ToolsEnum.AXE, ToolsEnum.PICKAXE, ToolsEnum.SHOVEL));
 

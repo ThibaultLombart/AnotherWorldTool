@@ -22,13 +22,15 @@ public class LoreUtils {
         // Exemple : on considère que la ligne XP est la 2ème (index 1)
         // et la ligne Level est la 1ère (index 0).
 
-        lore.set(1, Component.text("Level : " + tool.getLevel())
+        int levelLine = tool.getLevelLine();
+        lore.set(levelLine, Component.text("Level : " + tool.getLevel())
                 .color(NamedTextColor.GRAY)
                 .decoration(TextDecoration.ITALIC, false));
 
-        lore.set(2, Component.text("XP : " + tool.getXP() + " / " + tool.getXpToNextLevel())
-                    .color(NamedTextColor.GRAY)
-                    .decoration(TextDecoration.ITALIC, false));
+        lore.set(levelLine+1, Component.text("XP : " + tool.getXP() + " / " + tool.getXpToNextLevel())
+                .color(NamedTextColor.GRAY)
+                .decoration(TextDecoration.ITALIC, false));
+
 
         meta.lore(lore);
         item.setItemMeta(meta);

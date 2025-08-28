@@ -9,7 +9,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -17,6 +16,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+
+import static java.lang.Math.max;
 
 public class ToolEnchantMenu implements InventoryHolder {
 
@@ -49,11 +50,15 @@ public class ToolEnchantMenu implements InventoryHolder {
 
     private void setPoints(int slot, Tool tool) {
         Material coin = Material.SUNFLOWER;
-        ItemStack coinItem = new ItemStack(coin, 1);
+        int points = tool.getPoints();
+        int pointsMini1 = max(points,1);
+        ItemStack coinItem = new ItemStack(coin, pointsMini1);
         ItemMeta meta = coinItem.getItemMeta();
 
+        String pointWord = (points <= 1 ? "Point" : "Points");
+
         meta.displayName(
-                Component.text("✦ Points : ", NamedTextColor.GOLD, TextDecoration.BOLD)
+                Component.text("✦ " + pointWord + " : ", NamedTextColor.GOLD, TextDecoration.BOLD)
                         .append(Component.text(String.valueOf(tool.getPoints()), NamedTextColor.GREEN, TextDecoration.BOLD))
                         .decoration(TextDecoration.ITALIC, false)
         );
@@ -112,6 +117,8 @@ public class ToolEnchantMenu implements InventoryHolder {
             if (i >= allowedSlots.size()) break; // plus de place -> (éventuellement prévoir pagination)
             int slot = allowedSlots.get(i++);
 
+            boolean isDisable = tool.isDesactivated(type);
+
             int levelOfEnchant = tool.getEnchantLevel(type);
 
             // Construis l’item d’affichage pour l’enchant
@@ -122,9 +129,11 @@ public class ToolEnchantMenu implements InventoryHolder {
             List<Component> lore = meta.lore();
 
             lore.add(Component.text("──────────────", NamedTextColor.DARK_GRAY)); // ligne de séparation
+
+            // Vérification de l'état (débloqué ou non)
             if(levelOfEnchant > 0) {
                 lore.add(
-                        Component.text("Status : ", NamedTextColor.GRAY)
+                        Component.text("État : ", NamedTextColor.GRAY)
                                 .append(Component.text("Débloqué", NamedTextColor.GREEN, TextDecoration.BOLD))
                                 .decoration(TextDecoration.ITALIC, false)
                 );
@@ -133,9 +142,25 @@ public class ToolEnchantMenu implements InventoryHolder {
                                 .append(Component.text(String.valueOf(levelOfEnchant), NamedTextColor.GOLD))
                                 .decoration(TextDecoration.ITALIC, false)
                 );
+
+                // Enchantement activé ou non
+                if (!isDisable) {
+                    lore.add(
+                            Component.text("Status : ", NamedTextColor.GRAY)
+                            .append(Component.text("Activé", NamedTextColor.GREEN, TextDecoration.BOLD))
+                            .decoration(TextDecoration.ITALIC, false)
+                    );
+                } else {
+                    lore.add(
+                            Component.text("Status : ", NamedTextColor.GRAY)
+                                    .append(Component.text("Désactivé", NamedTextColor.RED, TextDecoration.BOLD))
+                                    .decoration(TextDecoration.ITALIC, false)
+                    );
+                }
+
             } else {
                 lore.add(
-                        Component.text("Status : ", NamedTextColor.GRAY)
+                        Component.text("État : ", NamedTextColor.GRAY)
                                 .append(Component.text("Non Débloqué", NamedTextColor.RED, TextDecoration.BOLD))
                                 .decoration(TextDecoration.ITALIC, false)
                 );
@@ -143,7 +168,7 @@ public class ToolEnchantMenu implements InventoryHolder {
             lore.add(Component.text("──────────────", NamedTextColor.DARK_GRAY)); // ligne de séparation
             lore.add(Component.empty());
 
-
+            // Vérification du niveau
             if(levelOfEnchant >= type.maxLevel) {
                 lore.add(Component.text("❌ Niveau maximum atteint ",
                                 NamedTextColor.RED, TextDecoration.BOLD)
@@ -158,12 +183,14 @@ public class ToolEnchantMenu implements InventoryHolder {
 
                         int manque = type.pointsCost - tool.getPoints();
 
+                        String pointWord = (manque == 1 ? "point" : "points");
+
                         if (levelOfEnchant > 0) {
-                            lore.add(Component.text("❌ Manque " + manque + " points pour améliorer",
+                            lore.add(Component.text("❌ Manque " + manque + " " + pointWord + " pour améliorer",
                                             NamedTextColor.RED, TextDecoration.BOLD)
                                     .decoration(TextDecoration.ITALIC, false));
                         } else {
-                            lore.add(Component.text("❌ Manque " + manque + " points pour débloquer",
+                            lore.add(Component.text("❌ Manque " + manque + " " + pointWord + " pour débloquer",
                                             NamedTextColor.RED, TextDecoration.BOLD)
                                     .decoration(TextDecoration.ITALIC, false));
                         }
@@ -173,15 +200,26 @@ public class ToolEnchantMenu implements InventoryHolder {
                             lore.add(Component.text("✔ Améliorable au niveau " + (levelOfEnchant + 1),
                                             NamedTextColor.GREEN, TextDecoration.BOLD)
                                     .decoration(TextDecoration.ITALIC, false));
-                            slotMap.put(slot, type);
                         } else {
                             lore.add(Component.text("✔ Débloquable", NamedTextColor.GREEN, TextDecoration.BOLD)
                                     .decoration(TextDecoration.ITALIC, false));
-                            slotMap.put(slot, type);
                         }
                     }
                 }
             }
+
+            if(levelOfEnchant > 0) {
+                Component lore2 = Component.text("Clique droit pour : ",
+                        NamedTextColor.GRAY);
+
+                if (!isDisable) {
+                    lore.add(lore2.append(Component.text("Désactiver", NamedTextColor.RED, TextDecoration.BOLD)));
+                } else {
+                    lore.add(lore2.append(Component.text("Activer", NamedTextColor.GREEN, TextDecoration.BOLD)));
+                }
+            }
+
+            slotMap.put(slot, type);
 
             meta.lore(lore);
             icon.setItemMeta(meta);
